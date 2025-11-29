@@ -1,21 +1,33 @@
 import { Alloy } from './src/alloy.js';
 
 const users = [
-    { id: 1, name: "Alice", active: false, role: "admin" },
-    { id: 2, name: "Bob", active: false, role: "user" },
-    { id: 3, name: "Charlie", active: false, role: "user" },
-    { id: 4, name: "Dave", active: true, role: "admin" }
+    { id: 1, name: "Alice", age: 30, role: "admin", secret: "hash_123" },
+    { id: 2, name: "Bob", age: 17, role: "user", secret: "hash_456" },
+    { id: 3, name: "Charlie", age: 25, role: "user", secret: "hash_789" },
+    { id: 4, name: "Dave", age: 40, role: "admin", secret: "hash_000" }
 ];
 
-console.log("--- TEST 4: The Execution Engine ---");
 
-const query = Alloy.from(users);
+const sqlResult = Alloy.from(users)
+    .select(['name', 'role'])
+    .run();
 
-query
-    .where(u => u.active === true)
-    .where(u => u.role === 'admin');
+console.log("Result:", JSON.stringify(sqlResult));
 
-// 4. Run
-const result = query.run();
 
-console.log("Final Result:", JSON.stringify(result));
+const mapResult = Alloy.from(users)
+    .where(u =>u.role == "admin")
+    .select(u => ({
+        displayName: u.name.toUpperCase(),
+        canVote: u.age >= 31
+    }))
+    .run();
+
+console.log("Result:", JSON.stringify(mapResult));
+
+const chainResult = Alloy.from(users)
+    .where(u => u.role === 'admin')
+    .select(['name'])
+    .run();
+
+console.log("Result:", JSON.stringify(chainResult));
