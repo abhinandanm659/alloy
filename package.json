@@ -1,0 +1,24 @@
+{
+  "name": "flux-query",
+  "version": "0.0.1",
+  "description": "A high-performance, O(N) data transformation engine for the web.",
+  "main": "src/FluxQuery.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Building... (To be implemented)\"",
+    "lint": "eslint src"
+  },
+  "keywords": [
+    "data",
+    "query",
+    "sql",
+    "arrays",
+    "performance"
+  ],
+  "author": "The Architects",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}

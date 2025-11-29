@@ -1,0 +1,19 @@
+Dependencies
+
+node_modules/
+npm-debug.log
+
+System Files
+
+.DS_Store
+Thumbs.db
+
+Environment variables (Never commit secrets!)
+
+.env
+
+Build outputs (We will have these later)
+
+dist/
+build/
+coverage/
