@@ -2,8 +2,15 @@
  * ALLOY v0.0.1
  */
 
-export class Alloy{
+const OPS = Object.freeze({
+  FILTER: "FILTER",
+  SORT: "SORT",
+  SELECT: "SELECT"
+});
 
+export class Alloy{
+  _data = [];
+  _queue = [];
 
   constructor(data){
     if(!Array.isArray(data)){
@@ -19,19 +26,46 @@ export class Alloy{
     }
   }
 
+  // The BUILDER
+  where(predicate){
+    if(typeof predicate !== 'function'){
+        throw new Error("Predicate must be a function");
+    }
 
-  /**
-   * Static Initializer
-   * Allows usage like: Alloy.from(users)
-   */
+    this._queue.push({
+        type: OPS.FILTER,
+        fn: predicate
+    });
+
+    return this;
+  }
+
+  // The ENGINE
+  run() {
+    let result = this._data;
+    
+    for (const job of this._queue) {
+      switch(job.type){
+        case OPS.FILTER:
+          result = result.filter(job.fn);
+          break;
+
+
+      }
+    }
+
+    return result;
+  }
+
   static from(data) {
     return new Alloy(data);
   }
 
-   /**
-   * Debug method to see what we are holding.
-   */
   inspect() {
-    return this._data;
+    return {
+      vault: this._data,
+      queueSize: this._queue.length,
+      queue: this._queue
+    };
   }
 }
