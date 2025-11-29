@@ -5,7 +5,9 @@
 const OPS = Object.freeze({
   FILTER: "FILTER",
   SORT: "SORT",
-  SELECT: "SELECT"
+  SELECT: "SELECT",
+  SKIP: "SKIP",
+  LIMIT: "LIMIT"
 });
 
 export class Alloy {
@@ -74,6 +76,24 @@ export class Alloy {
     return this;
   }
 
+  skip(count) {
+    this._queue.push({
+      type: OPS.SKIP,
+      payload: count
+    });
+
+    return this;
+  }
+
+  limit(count) {
+    this._queue.push({
+      type: OPS.LIMIT,
+      payload: count
+    });
+
+    return this;
+  }
+
   run() {
     let result = this._data;
   
@@ -118,6 +138,16 @@ export class Alloy {
             return 0;
           });
           break
+        
+        case OPS.SKIP:
+          result = result.slice(job.payload);
+          break;
+        
+        case OPS.LIMIT:
+          result = result.slice(0, job.payload);
+          break;
+
+        
       }
     }
 
