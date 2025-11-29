@@ -10,6 +10,7 @@ const users = [
 
 const sqlResult = Alloy.from(users)
     .select(['name', 'role'])
+    .orderBy("name", "asc")
     .run();
 
 console.log("Result:", JSON.stringify(sqlResult));

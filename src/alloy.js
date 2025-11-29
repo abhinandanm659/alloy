@@ -16,7 +16,6 @@ export class Alloy {
     if(!Array.isArray(data)){
         throw new Error("Alloy Error : Data must be an array");
     }
-
     try{
         this._data = structuredClone(data);
     }
@@ -26,7 +25,18 @@ export class Alloy {
     }
   }
 
-  // ---------- The BUILDER ----------
+  static from(data) {
+    return new Alloy(data);
+  }
+
+  inspect() {
+    return {
+      vault: this._data,
+      queueSize: this._queue.length,
+      queue: this._queue
+    };
+  }
+
   where(predicate) {
     if(typeof predicate !== 'function') {
         throw new Error("Predicate must be a function");
@@ -40,16 +50,12 @@ export class Alloy {
     return this;
   }
 
-  /**
-   * SELECT (The Projector)
-   * 1. If input is Array -> Pick specific keys (SQL style).
-   * 2. If input is Function -> Run custom transformation (Map style).
-   */
   select(selector) {
     const isArray = Array.isArray(selector);
     const isFunc = typeof selector === 'function';
 
-    if(!isArray && !isFunc) throw new Error('Alloy Error : select() expects an Array of keys or a transformation Function.');
+    if(!isArray && !isFunc) 
+      throw new Error('Alloy Error : select() expects an Array of keys or a transformation Function.');
 
     this._queue.push({
       type: OPS.SELECT,
@@ -59,7 +65,15 @@ export class Alloy {
     return this;
   }
 
-  // ---------- The ENGINE ----------
+  orderBy(key , direction = 'asc') {
+    this._queue.push({
+      type: OPS.SORT,
+      payload: {key, direction}
+    });
+
+    return this;
+  }
+
   run() {
     let result = this._data;
   
@@ -85,21 +99,28 @@ export class Alloy {
             });
           }
           break;
+
+        case OPS.SORT:
+          if(result === this._data){
+            result = [...result];
+          }
+
+          const { key, direction } = job.payload;
+          result.sort((a, b) => {
+            const valA = a[key];
+            const valB = b[key];
+
+            if (valA === undefined) return 1; 
+            if (valB === undefined) return -1;
+
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
+            return 0;
+          });
+          break
       }
     }
 
     return result;
-  }
-
-  static from(data) {
-    return new Alloy(data);
-  }
-
-  inspect() {
-    return {
-      vault: this._data,
-      queueSize: this._queue.length,
-      queue: this._queue
-    };
   }
 }
